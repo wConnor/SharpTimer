@@ -10,6 +10,10 @@ namespace SharpTimer
     {
         public Timer(int hours, int minutes, int seconds)
         {
+            _totalSeconds = hours * 3600
+                + minutes * 60
+                + seconds;
+
             _hours = hours;
             _minutes = minutes;
             _seconds = seconds;
@@ -19,6 +23,6 @@ namespace SharpTimer
         public int _minutes { get; set; }
         public int _seconds { get; set; }
 
-
+        public int _totalSeconds { get; set; }
     }
 }

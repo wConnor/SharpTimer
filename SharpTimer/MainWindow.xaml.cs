@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-
 namespace SharpTimer
 {
     /// <summary>
@@ -24,19 +24,49 @@ namespace SharpTimer
     public partial class MainWindow : Window
     {
         private readonly Regex numeric_regex = new Regex("[^0-9]+");
-        private ManualResetEvent mre = new ManualResetEvent(false);
+        private ManualResetEvent mre = new ManualResetEvent(true);
         private Thread timerThread;
         private Timer timer;
+        private DateTime timeStarted;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private static void runTimer()
+        public void runTimer()
         {
+            for (; this.timer._totalSeconds >= 0; this.timer._totalSeconds--)
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    this.tbxHours.Text = (this.timer._totalSeconds / 3600).ToString("00");
+                    this.tbxMinutes.Text = (this.timer._totalSeconds / 60).ToString("00");
+                    this.tbxSeconds.Text = (this.timer._totalSeconds % 60).ToString("00");
+                });
+                Thread.Sleep(1000);
 
+                this.mre.WaitOne();
+            }
+
+            this.Dispatcher.Invoke(() =>
+            {
+                this.bStartStop.Content = "Start";
+                this.bPauseResume.IsEnabled = false;
+                this.bPauseResume.Content = "Pause";
+                this.tbxHours.IsReadOnly = false;
+                this.tbxMinutes.IsReadOnly = false;
+                this.tbxSeconds.IsReadOnly = false;
+            });
+
+            new ToastContentBuilder()
+                .AddText("Sharp Timer")
+                .AddText(this.timer._hours.ToString("00") + ":" + 
+                        this.timer._minutes.ToString("00") + ":" + 
+                        this.timer._seconds.ToString("00") + " timer started at " + this.timeStarted + " has elapsed.")
+                .Show();
         }
+
 
         private void tbxHours_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -68,6 +98,7 @@ namespace SharpTimer
                     Convert.ToInt32(this.tbxHours.Text),
                     Convert.ToInt32(this.tbxMinutes.Text),
                     Convert.ToInt32(this.tbxSeconds.Text));
+                this.timeStarted = DateTime.Now;
                 this.timerThread = new Thread(new ThreadStart(runTimer));
                 this.timerThread.Start();
             }
@@ -80,6 +111,11 @@ namespace SharpTimer
                 this.tbxHours.IsReadOnly = false;
                 this.tbxMinutes.IsReadOnly = false;
                 this.tbxSeconds.IsReadOnly = false;
+
+                this.tbxHours.Text = "00";
+                this.tbxMinutes.Text = "00";
+                this.tbxSeconds.Text = "00";
+                this.timer._totalSeconds = 0;
             }
         }
 
@@ -88,12 +124,13 @@ namespace SharpTimer
             // pause button clicked; suspend the timer.
             if ((string) this.bPauseResume.Content == "Pause")
             {
-                timerThread.Interrupt();
+                this.mre.Reset();
                 this.bPauseResume.Content = "Resume";
             }
             // resume button clicked; continue the timer.
             else
             {
+                this.mre.Set();
                 this.bPauseResume.Content = "Pause";
 
             }
