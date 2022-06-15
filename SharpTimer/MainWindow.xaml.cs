@@ -41,9 +41,14 @@ namespace SharpTimer
             {
                 this.Dispatcher.Invoke(() =>
                 {
-                    this.tbxHours.Text = (this.timer._totalSeconds / 3600).ToString("00");
-                    this.tbxMinutes.Text = (this.timer._totalSeconds / 60).ToString("00");
-                    this.tbxSeconds.Text = (this.timer._totalSeconds % 60).ToString("00");
+                    string hrs = (this.timer._totalSeconds / 3600).ToString("00"),
+                        mins = (this.timer._totalSeconds / 60).ToString("00"),
+                        secs = (this.timer._totalSeconds % 60).ToString("00");
+
+                    this.tbxHours.Text = hrs;
+                    this.tbxMinutes.Text = mins;
+                    this.tbxSeconds.Text = secs;
+                    this.Title = "[" + hrs + ":" + mins + ":" + secs + "] - SharpTimer";
                 });
                 Thread.Sleep(1000);
 
@@ -52,6 +57,7 @@ namespace SharpTimer
 
             this.Dispatcher.Invoke(() =>
             {
+                this.Title = "SharpTimer";
                 this.bStartStop.Content = "Start";
                 this.bPauseResume.IsEnabled = false;
                 this.bPauseResume.Content = "Pause";
@@ -63,7 +69,7 @@ namespace SharpTimer
             if (!this.quitFlag)
             {
                 new ToastContentBuilder()
-                    .AddText("Sharp Timer")
+                    .AddText("SharpTimer")
                     .AddText(this.timer._hours.ToString("00") + ":" +
                             this.timer._minutes.ToString("00") + ":" +
                             this.timer._seconds.ToString("00") + " timer started at " + this.timeStarted + " has elapsed.")

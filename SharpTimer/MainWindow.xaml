@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SharpTimer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="160" Width="240">
+        Title="SharpTimer" Height="160" Width="240">
     <StackPanel Margin="4">
         <WrapPanel Margin="5" HorizontalAlignment="Center">
             <TextBox Name="tbxHours" Text="00" FontSize="36" MaxLength="2" PreviewTextInput="tbxHours_PreviewTextInput"/>
