@@ -28,6 +28,7 @@ namespace SharpTimer
         private Thread timerThread;
         private Timer timer;
         private DateTime timeStarted;
+        private bool quitFlag = false;
 
         public MainWindow()
         {
@@ -59,14 +60,16 @@ namespace SharpTimer
                 this.tbxSeconds.IsReadOnly = false;
             });
 
-            new ToastContentBuilder()
-                .AddText("Sharp Timer")
-                .AddText(this.timer._hours.ToString("00") + ":" + 
-                        this.timer._minutes.ToString("00") + ":" + 
-                        this.timer._seconds.ToString("00") + " timer started at " + this.timeStarted + " has elapsed.")
-                .Show();
+            if (!this.quitFlag)
+            {
+                new ToastContentBuilder()
+                    .AddText("Sharp Timer")
+                    .AddText(this.timer._hours.ToString("00") + ":" +
+                            this.timer._minutes.ToString("00") + ":" +
+                            this.timer._seconds.ToString("00") + " timer started at " + this.timeStarted + " has elapsed.")
+                    .Show();
+            }
         }
-
 
         private void tbxHours_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -99,6 +102,7 @@ namespace SharpTimer
                     Convert.ToInt32(this.tbxMinutes.Text),
                     Convert.ToInt32(this.tbxSeconds.Text));
                 this.timeStarted = DateTime.Now;
+                this.quitFlag = false;
                 this.timerThread = new Thread(new ThreadStart(runTimer));
                 this.timerThread.Start();
             }
@@ -115,6 +119,8 @@ namespace SharpTimer
                 this.tbxHours.Text = "00";
                 this.tbxMinutes.Text = "00";
                 this.tbxSeconds.Text = "00";
+                this.quitFlag = true;
+                this.mre.Set();
                 this.timer._totalSeconds = 0;
             }
         }
@@ -132,9 +138,7 @@ namespace SharpTimer
             {
                 this.mre.Set();
                 this.bPauseResume.Content = "Pause";
-
-            }
-            
+            }       
         }
     }
 }
